@@ -13,10 +13,12 @@ void SW_Init()
 	data::instance = GetModuleHandle(nullptr);
 	data::backColor = (HBRUSH)DKGRAY_BRUSH;
 }
+
 void SW_Title(const autostring& title)
 {
 	data::title = title;
 }
+
 void SW_Size(int width, int height)
 {
 	data::width = width;
@@ -24,31 +26,38 @@ void SW_Size(int width, int height)
 	data::x = (::GetSystemMetrics(SM_CXSCREEN) - width) >> 1;
 	data::y = (::GetSystemMetrics(SM_CYSCREEN) - height) >> 1;
 }
+
 void SW_Pos(int x, int y)
 {
 	data::x = x;
 	data::y = y;
 }
+
 void SW_Icon(const autostring& iconPath)
 {
 	data::icon = (HICON)LoadImage(data::instance, iconPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
 }
+
 void SW_Cursor(const autostring& cursorPath)
 {
 	data::cursor = (HCURSOR)LoadImage(data::instance, cursorPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
 }
+
 void SW_DarkMode()
 {
 }
+
 bool SW_IsDarkMode()
 {
 	return false;
 }
+
 void SW_BackColor(BYTE r, BYTE g, BYTE b)
 {
 	COLORREF color = (0x00 << 6) | (r << 4) | (g << 2) | (b);
 	data::backColor = CreateSolidBrush(color);
 }
+
 bool SW_Update()
 {
 	MSG message{};
@@ -64,16 +73,19 @@ bool SW_Update()
 
 	return true;
 }
+
 void SW_Show()
 {
 	ShowWindow(data::window, SW_SHOW);
 }
+
 void SW_Close()
 {
 	DeleteObject(data::backColor);
 	PostQuitMessage(0);
 	PostMessage(data::window, WM_CLOSE, 0, 0);
 }
+
 void SW_CreateWindow()
 {
 	WNDCLASSEX windowClass{};
@@ -108,12 +120,6 @@ void SW_CreateWindow()
 	);
 }
 
-
-
-
-
-
-// ウィンドウプロシージャらへん
 LRESULT CALLBACK WndProcMultibyte(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg)
