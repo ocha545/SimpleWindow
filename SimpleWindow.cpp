@@ -69,7 +69,7 @@ void SW_BackColor(BYTE r, BYTE g, BYTE b)
 	data::backColor = CreateSolidBrush(color);
 }
 
-bool SW_Update()
+NODISCARD bool SW_Update()
 {
 	MSG message{};
 	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))

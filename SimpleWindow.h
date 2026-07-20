@@ -5,7 +5,6 @@
 #include<dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 
-
 #ifdef UNICODE
 using autostring = std::wstring;
 #else
@@ -16,6 +15,11 @@ using autostring = std::string;
 #define DWMWA_USE_IMMERSIVE_DARK_MODE (20)
 #endif
 
+#ifndef NODISCARD
+#define NODISCARD [[nodiscard]]
+#endif
+
+/// @brief SimpleWindowからスローされる例外の親クラスです
 class SWException : std::exception
 {
 private:
@@ -33,6 +37,7 @@ public:
 	}
 };
 
+/// @brief ウィンドウハンドルが無効の時スローされる例外です
 class SWInvalidHWndException : SWException
 {
 public:
@@ -42,6 +47,7 @@ public:
 	}
 };
 
+/// @brief HRESULTの値がS_OK以外の時にスローされる例外です
 class SWFailureResultException : SWException
 {
 public:
@@ -65,81 +71,56 @@ namespace data
 	static HBRUSH backColor;
 }
 
-/// <summary>
-/// ウィンドウを作成するのに必要な変数を初期化します
-/// </summary>
+/// @brief ウィンドウの作成に必要な変数を初期化します
 extern void SW_Init();
 
-/// <summary>
-/// ウィンドウのタイトルを設定します
-/// </summary>
-/// <param name="title"></param>
+/// @brief ウィンドウのタイトルを設定します
+/// @param title 
 extern void SW_Title(const autostring& title);
 
-/// <summary>
-/// ウィンドウの大きさを設定します
-/// </summary>
-/// <param name="width"></param>
-/// <param name="height"></param>
+/// @brief ウィンドウの大きさを設定します
+/// @param width 
+/// @param height 
 extern void SW_Size(int width, int height);
 
-/// <summary>
-/// ウィンドウの座標を設定します
-/// </summary>
-/// <param name="x"></param>
-/// <param name="y"></param>
+/// @brief ウィンドウの座標を設定します
+/// @param x 
+/// @param y 
 extern void SW_Pos(int x, int y);
 
-/// <summary>
-/// ウィンドウのアイコンを設定します
-/// </summary>
-/// <param name="iconPath"></param>
+/// @brief ウィンドウのアイコンを設定します
+/// @param iconPath 
 extern void SW_Icon(const autostring& iconPath);
 
-/// <summary>
-/// ウィンドウ内で使うカーソル画像を設定します
-/// </summary>
-/// <param name="cursorPath"></param>
+/// @brief ウィンドウ内で使うカーソル画像を設定します
+/// @param cursorPath 
 extern void SW_Cursor(const autostring& cursorPath);
 
-/// <summary>
-/// ウィンドウをダークモードに設定します
-/// </summary>
+/// @brief ウィンドウをダークモードに設定します
+/// @attension SW_CreateWindow関数を実行した後にこの関数を実行してください
 extern void SW_DarkMode();
 
-/// <summary>
-/// ウィンドウの背景の色を設定します
-/// </summary>
-/// <param name="r"></param>
-/// <param name="g"></param>
-/// <param name="b"></param>
+/// @brief ウィンドウの背景の色を設定します
+/// @param r 
+/// @param g 
+/// @param b 
 extern void SW_BackColor(BYTE r, BYTE g, BYTE b);
 
-/// <summary>
-/// ユーザー設定でダークモードが有効かチェックします
-/// </summary>
-/// <returns></returns>
+/// @brief ユーザー設定でダークモードが有効かチェックします
+/// @return 
 extern bool SW_IsDarkMode();
 
-/// <summary>
-/// ウィンドウを作成します
-/// </summary>
+/// @brief ウィンドウを作成します
 extern void SW_CreateWindow();
 
-/// <summary>
-/// ウィンドウの内容を更新します
-/// </summary>
-/// <returns></returns>
-extern bool SW_Update();
+/// @brief ウィンドウの内容を更新します
+/// @return 
+extern NODISCARD bool SW_Update();
 
-/// <summary>
-/// ウィンドウを表示します
-/// </summary>
+/// @brief ウィンドウを表示します
 extern void SW_Show();
 
-/// <summary>
-/// ウィンドウを閉じます
-/// </summary>
+/// @brief ウィンドウを閉じます
 extern void SW_Close();
 
 
