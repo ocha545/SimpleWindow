@@ -1,0 +1,150 @@
+﻿#include"SimpleWindow.h"
+
+void SW_Init()
+{
+	data::title = autostring();
+	data::width = 100;
+	data::height = 100;
+	data::x = 0;
+	data::y = 0;
+	data::icon = LoadIcon(NULL, IDC_ICON);
+	data::cursor = LoadCursor(NULL, IDC_ARROW);
+	data::window = nullptr;
+	data::instance = GetModuleHandle(nullptr);
+	data::backColor = (HBRUSH)DKGRAY_BRUSH;
+}
+void SW_Title(const autostring& title)
+{
+	data::title = title;
+}
+void SW_Size(int width, int height)
+{
+	data::width = width;
+	data::height = height;
+	data::x = (::GetSystemMetrics(SM_CXSCREEN) - width) >> 1;
+	data::y = (::GetSystemMetrics(SM_CYSCREEN) - height) >> 1;
+}
+void SW_Pos(int x, int y)
+{
+	data::x = x;
+	data::y = y;
+}
+void SW_Icon(const autostring& iconPath)
+{
+	data::icon = (HICON)LoadImage(data::instance, iconPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+}
+void SW_Cursor(const autostring& cursorPath)
+{
+	data::cursor = (HCURSOR)LoadImage(data::instance, cursorPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+}
+void SW_DarkMode()
+{
+}
+bool SW_IsDarkMode()
+{
+	return false;
+}
+void SW_BackColor(BYTE r, BYTE g, BYTE b)
+{
+	COLORREF color = (0x00 << 6) | (r << 4) | (g << 2) | (b);
+	data::backColor = CreateSolidBrush(color);
+}
+bool SW_Update()
+{
+	MSG message{};
+	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
+	{
+		if (message.message == WM_QUIT)
+		{
+			return false;
+		}
+		TranslateMessage(&message);
+		DispatchMessage(&message);
+	}
+
+	return true;
+}
+void SW_Show()
+{
+	ShowWindow(data::window, SW_SHOW);
+}
+void SW_Close()
+{
+	DeleteObject(data::backColor);
+	PostQuitMessage(0);
+	PostMessage(data::window, WM_CLOSE, 0, 0);
+}
+void SW_CreateWindow()
+{
+	WNDCLASSEX windowClass{};
+	windowClass.cbSize = sizeof(windowClass);
+	windowClass.style = CS_HREDRAW | CS_VREDRAW;
+	windowClass.hInstance = data::instance;
+	windowClass.hIcon = data::icon;
+	windowClass.hCursor = data::cursor;
+	windowClass.hbrBackground = data::backColor;
+#ifdef UNICODE
+	windowClass.lpfnWndProc = WndProcWide;
+	windowClass.lpszClassName = L"Simple Window ^_^;";
+#else
+	windowClass.lpfnWndProc = WndProcMultibyte;
+	windowClass.lpszClassName = "Simple Window ^_^;";
+#endif
+	RegisterClassEx(&windowClass);
+
+	RECT windowRect{};
+	windowRect.left = 0;
+	windowRect.top = 0;
+	windowRect.right = data::width;
+	windowRect.bottom = data::height;
+	AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+	int windowWidth = windowRect.right - windowRect.left;
+	int windowHeight = windowRect.bottom - windowRect.top;
+
+	data::window = CreateWindowEx(
+		NULL, windowClass.lpszClassName, data::title.c_str(), WS_OVERLAPPEDWINDOW,
+		data::x, data::y, windowWidth, windowHeight,
+		NULL, FALSE, data::instance, NULL
+	);
+}
+
+
+
+
+
+
+// ウィンドウプロシージャらへん
+LRESULT CALLBACK WndProcMultibyte(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+	switch (msg)
+	{
+	case WM_CLOSE:
+		DestroyWindow(hWnd);
+		return 0;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+
+	default:
+		return DefWindowProcA(hWnd, msg, wp, lp);
+	}
+}
+
+LRESULT CALLBACK WndProcWide(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+	switch (msg)
+	{
+	case WM_CLOSE:
+		DestroyWindow(hWnd);
+		return 0;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+
+	default:
+		return DefWindowProcW(hWnd, msg, wp, lp);
+	}
+}
+
