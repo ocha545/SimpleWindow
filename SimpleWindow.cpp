@@ -45,6 +45,17 @@ void SW_Cursor(const autostring& cursorPath)
 
 void SW_DarkMode()
 {
+	if (!data::window)
+	{
+		throw SWInvalidHWndException("HWNDが無効です。SW_CreateWindowをした後実行してください");
+	}
+	BOOL value = TRUE;//ダークモードを有効化！
+	HRESULT res = DwmSetWindowAttribute(data::window, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+
+	if (FAILED(res))
+	{
+		throw SWFailureResultException("ダークモードの有効化に失敗しました");
+	}
 }
 
 bool SW_IsDarkMode()

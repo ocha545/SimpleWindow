@@ -1,12 +1,55 @@
 ﻿#pragma once
-#include<Windows.h>
 #include<string>
+#include<Windows.h>
+#include<exception>
+#include<dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
+
 
 #ifdef UNICODE
 using autostring = std::wstring;
 #else
 using autostring = std::string;
 #endif
+
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE (20)
+#endif
+
+class SWException : std::exception
+{
+private:
+	std::string message;
+
+public:
+	SWException(const std::string& msg)
+		: message(msg)
+	{
+	}
+
+	char const* what() const noexcept
+	{
+		return message.c_str();
+	}
+};
+
+class SWInvalidHWndException : SWException
+{
+public:
+	SWInvalidHWndException(std::string msg)
+		: SWException(msg)
+	{
+	}
+};
+
+class SWFailureResultException : SWException
+{
+public:
+	SWFailureResultException(std::string msg)
+		: SWException(msg)
+	{
+	}
+};
 
 namespace data
 {
