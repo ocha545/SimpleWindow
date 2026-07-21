@@ -97,7 +97,7 @@ extern void SW_Icon(const autostring& iconPath);
 extern void SW_Cursor(const autostring& cursorPath);
 
 /// @brief ウィンドウをダークモードに設定します
-/// @attension SW_CreateWindow関数を実行した後にこの関数を実行してください
+/// @brief SW_CreateWindow関数を実行した後にこの関数を実行してください
 extern void SW_DarkMode();
 
 /// @brief ウィンドウの背景の色を設定します

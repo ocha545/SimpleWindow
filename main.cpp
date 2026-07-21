@@ -6,9 +6,9 @@ int main()
 	SW_Init();
 	SW_Size(960, 720);
 	SW_Title(L"たいとる");
-	SW_BackColor(255, 0, 0);
-	SW_DarkMode();
+	SW_BackColor(0, 255, 0);
 	SW_CreateWindow();
+	SW_DarkMode();
 	SW_Show();
 
 	while (SW_Update())
@@ -17,6 +17,4 @@ int main()
 	}
 
 	SW_Close();
-
-	system("pause");
 }

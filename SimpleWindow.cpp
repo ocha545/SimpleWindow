@@ -65,7 +65,7 @@ bool SW_IsDarkMode()
 
 void SW_BackColor(BYTE r, BYTE g, BYTE b)
 {
-	COLORREF color = (0x00 << 6) | (r << 4) | (g << 2) | (b);
+	COLORREF color = (0x00 << 24) | (r << 16) | (g << 8) | (b);
 	data::backColor = CreateSolidBrush(color);
 }
 
