@@ -131,12 +131,12 @@ void SW_CreateWindow()
 	);
 }
 
-extern HWND SW_Sys_GetHWnd()
+HWND SW_Sys_GetHWnd()
 {
 	return data::window;
 }
 
-extern HINSTANCE SW_Sys_GetHInstance()
+HINSTANCE SW_Sys_GetHInstance()
 {
 	return data::instance;
 }

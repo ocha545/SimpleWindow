@@ -132,4 +132,4 @@ extern void SW_Close();
 extern HWND SW_Sys_GetHWnd();
 extern HINSTANCE SW_Sys_GetHInstance();
 
-static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
+extern LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
