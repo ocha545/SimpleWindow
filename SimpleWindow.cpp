@@ -12,6 +12,7 @@ void SW_Init()
 	data::window = nullptr;
 	data::instance = GetModuleHandle(nullptr);
 	data::backColor = (HBRUSH)DKGRAY_BRUSH;
+	//data::cursorPos;
 }
 
 void SW_Title(const autostring& title)
@@ -106,11 +107,10 @@ void SW_CreateWindow()
 	windowClass.hIcon = data::icon;
 	windowClass.hCursor = data::cursor;
 	windowClass.hbrBackground = data::backColor;
+	windowClass.lpfnWndProc = WndProc;
 #ifdef UNICODE
-	windowClass.lpfnWndProc = WndProcWide;
 	windowClass.lpszClassName = L"Simple Window ^_^;";
 #else
-	windowClass.lpfnWndProc = WndProcMultibyte;
 	windowClass.lpszClassName = "Simple Window ^_^;";
 #endif
 	RegisterClassEx(&windowClass);
@@ -131,10 +131,32 @@ void SW_CreateWindow()
 	);
 }
 
-LRESULT CALLBACK WndProcMultibyte(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+extern HWND SW_Sys_GetHWnd()
+{
+	return data::window;
+}
+
+extern HINSTANCE SW_Sys_GetHInstance()
+{
+	return data::instance;
+}
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg)
 	{
+	case WM_CREATE:
+	{
+		//RAWINPUTDEVICE rawInputDevice{};
+		//rawInputDevice.usUsagePage = 0x01;
+		//rawInputDevice.usUsage = 0x02;
+		//rawInputDevice.dwFlags = RIDEV_INPUTSINK;
+		//rawInputDevice.hwndTarget = data::window;
+		//RegisterRawInputDevices(&rawInputDevice, 1, sizeof(RAWINPUTDEVICE));
+		//GetCursorPos(&data::cursorPos);
+	}
+	return DefWindowProc(hWnd, msg, wp, lp);
+
 	case WM_CLOSE:
 		DestroyWindow(hWnd);
 		return 0;
@@ -143,25 +165,29 @@ LRESULT CALLBACK WndProcMultibyte(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		PostQuitMessage(0);
 		return 0;
 
-	default:
-		return DefWindowProcA(hWnd, msg, wp, lp);
-	}
-}
-
-LRESULT CALLBACK WndProcWide(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
-{
-	switch (msg)
+	case WM_INPUT:
 	{
-	case WM_CLOSE:
-		DestroyWindow(hWnd);
-		return 0;
+		//RAWINPUT rawInput{};
+		//UINT rawInputSize = (UINT)sizeof(rawInput);
+		//GetRawInputData((HRAWINPUT)lp, RID_INPUT, &rawInput, &rawInputSize, sizeof(RAWINPUTHEADER));
+		//if (rawInput.header.dwType == RIM_TYPEMOUSE)
+		//{
+		//	GetCursorPos(&data::cursorPos);
+		//}
+	}
+	return DefWindowProc(hWnd, msg, wp, lp);
 
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
 
 	default:
-		return DefWindowProcW(hWnd, msg, wp, lp);
+		return DefWindowProc(hWnd, msg, wp, lp);
 	}
 }
 
+
+//Vector2D data::ConvPointToVector2D(const POINT& pos)
+//{
+//	return Vector2D{
+//		(double)pos.x,
+//		(double)pos.y
+//	};
+//}

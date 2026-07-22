@@ -13,7 +13,6 @@ int main()
 
 	while (SW_Update())
 	{
-
 	}
 
 	SW_Close();

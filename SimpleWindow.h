@@ -5,6 +5,8 @@
 #include<dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 
+//#include"SimpleVector2D/SimpleVector.h"
+
 #ifdef UNICODE
 using autostring = std::wstring;
 #else
@@ -69,6 +71,10 @@ namespace data
 	static HICON icon;
 	static HCURSOR cursor;
 	static HBRUSH backColor;
+
+	//未使用！
+	//static POINT cursorPos;
+	//Vector2D ConvPointToVector2D(const POINT& pos);
 }
 
 /// @brief ウィンドウの作成に必要な変数を初期化します
@@ -123,6 +129,7 @@ extern void SW_Show();
 /// @brief ウィンドウを閉じます
 extern void SW_Close();
 
+extern HWND SW_Sys_GetHWnd();
+extern HINSTANCE SW_Sys_GetHInstance();
 
-static LRESULT CALLBACK WndProcMultibyte(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
-static LRESULT CALLBACK WndProcWide(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
