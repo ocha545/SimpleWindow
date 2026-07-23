@@ -3,8 +3,8 @@
 void SW_Init()
 {
 	data::title = autostring();
-	data::width = 100;
-	data::height = 100;
+	data::width = 300;
+	data::height = 300;
 	data::x = 0;
 	data::y = 0;
 	data::icon = LoadIcon(NULL, IDC_ICON);
