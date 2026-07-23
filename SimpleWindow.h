@@ -59,6 +59,42 @@ public:
 	}
 };
 
+enum class Result : long
+{
+	Ok = IDOK,
+	Cancel = IDCANCEL,
+	Abort = IDABORT,
+	Retry = IDRETRY,
+	Ignore = IDIGNORE,
+	Yes = IDYES,
+	No = IDNO,
+	TryAgain = IDTRYAGAIN,
+	Continue = IDCONTINUE,
+	Null = NULL,
+};
+enum class Button : long
+{
+	Ok = MB_OK,
+	OkCancel = MB_OKCANCEL,
+	AbortRetryIgnore = MB_ABORTRETRYIGNORE,
+	YesNoCancel = MB_YESNOCANCEL,
+	YesNo = MB_YESNO,
+	RetryCancel = MB_RETRYCANCEL,
+	CancelTryContinue = MB_CANCELTRYCONTINUE,
+};
+enum class Icon : long
+{
+	Hand = MB_ICONERROR,
+	Stop = MB_ICONERROR,
+	Error = MB_ICONERROR,
+	Question = MB_ICONQUESTION,
+	Exclamation = MB_ICONWARNING,
+	Warning = MB_ICONWARNING,
+	Asterisk = MB_ICONINFORMATION,
+	Information = MB_ICONINFORMATION,
+};
+long operator|(Button b, Icon i);
+
 namespace data
 {
 	static autostring title;
@@ -107,12 +143,13 @@ extern void SW_Cursor(const autostring& cursorPath);
 extern void SW_DarkMode();
 
 /// @brief ウィンドウの背景の色を設定します
+/// @brief 0 から 255までの値を使用してください
 /// @param r 
 /// @param g 
 /// @param b 
 extern void SW_BackColor(BYTE r, BYTE g, BYTE b);
 
-/// @brief ユーザー設定でダークモードが有効かチェックします
+/// @brief ユーザー設定でダークモードが有効かチェックします(未実装)
 /// @return 
 extern bool SW_IsDarkMode();
 
@@ -123,13 +160,38 @@ extern void SW_CreateWindow();
 /// @return 
 extern NODISCARD bool SW_Update();
 
+/// @brief ウィンドウタイトルを更新します
+/// @brief 処理が重たいのでループ内で使用するのはご遠慮下さい
+/// @param title 
+extern void SW_UpdateTitle(const autostring& title);
+
 /// @brief ウィンドウを表示します
 extern void SW_Show();
 
 /// @brief ウィンドウを閉じます
 extern void SW_Close();
 
+/// @brief メッセージボックスを表示します
+/// @param title 
+/// @param message 
+/// @param flag Button列挙体とIcon列挙体を使ってカスタムします
+/// @return 
+extern Result SW_ShowMessageBox(const autostring& title, const autostring& message, long flag);
+
+/// @brief メッセージボックスをOKボタンで表示します
+/// @param title 
+/// @param message 
+/// @return Result::Ok が返されます
+extern Result SW_ShowMessageBoxOk(const autostring& title, const autostring& message);
+
+/// @brief メッセージボックスをYesNoボタンで表示します
+/// @param title 
+/// @param message 
+/// @return Result::Yes か Result::No が返されます
+extern Result SW_ShowMessageBoxYesNo(const autostring& title, const autostring& message);
+
 extern HWND SW_Sys_GetHWnd();
 extern HINSTANCE SW_Sys_GetHInstance();
+extern Result SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& title, const autostring& message, long flag);
 
 extern LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);

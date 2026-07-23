@@ -86,6 +86,15 @@ NODISCARD bool SW_Update()
 	return true;
 }
 
+void SW_UpdateTitle(const autostring& title)
+{
+	if (::SetWindowText(data::window, title.c_str()) == FALSE)
+	{
+		// 失敗したらログ出力をする
+		// 致命的なエラーではないので例外は投げません
+	}
+}
+
 void SW_Show()
 {
 	ShowWindow(data::window, SW_SHOW);
@@ -96,6 +105,21 @@ void SW_Close()
 	DeleteObject(data::backColor);
 	PostQuitMessage(0);
 	PostMessage(data::window, WM_CLOSE, 0, 0);
+}
+
+Result SW_ShowMessageBox(const autostring& title, const autostring& message, long flag)
+{
+	return SW_Sys_MessageBox(data::window, data::instance, title, message, flag);
+}
+
+Result SW_ShowMessageBoxOk(const autostring& title, const autostring& message)
+{
+	return SW_Sys_MessageBox(data::window, data::instance, title, message, Button::Ok | Icon::Information);
+}
+
+Result SW_ShowMessageBoxYesNo(const autostring& title, const autostring& message)
+{
+	return SW_Sys_MessageBox(data::window, data::instance, title, message, Button::YesNo | Icon::Information);
 }
 
 void SW_CreateWindow()
@@ -139,6 +163,37 @@ HWND SW_Sys_GetHWnd()
 HINSTANCE SW_Sys_GetHInstance()
 {
 	return data::instance;
+}
+
+Result SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& title, const autostring& message, long flag)
+{
+	MSGBOXPARAMS params{};
+	params.cbSize = sizeof(params);
+	params.hwndOwner = handle;
+	params.hInstance = instance;
+	params.lpszCaption = title.c_str();
+	params.lpszText = message.c_str();
+	params.dwStyle = flag;
+
+	switch (MessageBoxIndirect(&params))
+	{
+	case IDOK:			return Result::Ok;
+	case IDCANCEL:		return Result::Cancel;
+	case IDABORT:		return Result::Abort;
+	case IDRETRY:		return Result::Retry;
+	case IDIGNORE:		return Result::Ignore;
+	case IDYES:			return Result::Yes;
+	case IDNO:			return Result::No;
+	case IDTRYAGAIN:	return Result::TryAgain;
+	case IDCONTINUE:	return Result::Continue;
+	default:			return Result::Null;
+	}
+	return Result::Null;
+}
+
+long operator|(Button b, Icon i)
+{
+	return (long)b | (long)i;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)

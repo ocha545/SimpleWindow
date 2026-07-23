@@ -1,6 +1,7 @@
 ﻿#include<iostream>
 #include"SimpleWindow.h"
-
+// Logs
+// Called SW_Init
 int main()
 {
 	SW_Init();					// (必須!)座標や色などのデータを初期化
