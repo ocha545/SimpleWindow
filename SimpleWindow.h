@@ -178,6 +178,11 @@ extern bool SW_Update();
 /// @param title 
 extern void SW_UpdateTitle(const autostring& title);
 
+/// @brief ウィンドウの座標を変更します
+/// @param x 
+/// @param y 
+extern void SW_UpdateWindowPos(int x, int y);
+
 /// @brief ウィンドウを表示します
 extern void SW_Show();
 

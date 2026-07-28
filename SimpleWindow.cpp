@@ -115,6 +115,14 @@ void SW_UpdateTitle(const autostring& title)
 	}
 }
 
+void SW_UpdateWindowPos(int x, int y)
+{
+	if (data::x != x || data::y != y)
+	{
+		SetWindowPos(data::window, HWND_TOP, x, y, data::width, data::height, SWP_NOSIZE);
+	}
+}
+
 void SW_Show()
 {
 	ShowWindow(data::window, SW_SHOW);

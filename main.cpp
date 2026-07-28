@@ -10,11 +10,12 @@ int main()
 	SW_CreateWindow();			// (必須!)ウィンドウの作成
 	SW_EnableDarkMode();		// ダークモードの有効化
 	SW_Show();					// (必須!)ウィンドウの表示
-		
+
 	while (SW_Update())			// ウィンドウを更新
 	{
 		if (SW_MouseRClick())
 		{
+
 		}
 	}
 
