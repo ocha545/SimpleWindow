@@ -21,8 +21,12 @@ using autostring = std::string;
 #define NODISCARD [[nodiscard]]
 #endif
 
+#ifndef SW_RAWINPUT_INDEX_MOUSE
+#define SW_RAWINPUT_INDEX_MOUSE (0)
+#endif
+
 /// @brief SimpleWindowからスローされる例外の親クラスです
-class SWException : std::exception
+class SWException : public std::exception
 {
 private:
 	std::string message;
@@ -40,7 +44,7 @@ public:
 };
 
 /// @brief ウィンドウハンドルが無効の時スローされる例外です
-class SWInvalidHWndException : SWException
+class SWInvalidHWndException : public SWException
 {
 public:
 	SWInvalidHWndException(std::string msg)
@@ -50,7 +54,7 @@ public:
 };
 
 /// @brief HRESULTの値がS_OK以外の時にスローされる例外です
-class SWFailureResultException : SWException
+class SWFailureResultException : public SWException
 {
 public:
 	SWFailureResultException(std::string msg)
@@ -107,6 +111,10 @@ namespace data
 	static HICON icon;
 	static HCURSOR cursor;
 	static HBRUSH backColor;
+	static bool mouseLClickPrev;
+	static bool mouseRClickPrev;
+	static bool mouseLClick;
+	static bool mouseRClick;
 
 	//未使用！
 	//static POINT cursorPos;
@@ -158,7 +166,7 @@ extern void SW_CreateWindow();
 
 /// @brief ウィンドウの内容を更新します
 /// @return 
-extern NODISCARD bool SW_Update();
+extern bool SW_Update();
 
 /// @brief ウィンドウタイトルを更新します
 /// @brief 処理が重たいのでループ内で使用するのはご遠慮下さい
@@ -170,6 +178,14 @@ extern void SW_Show();
 
 /// @brief ウィンドウを閉じます
 extern void SW_Close();
+
+/// @brief マウスの左クリックを判定します
+/// @return 
+extern bool SW_MouseLClick();
+
+/// @brief マウスの右クリックを判定します
+/// @return 
+extern bool SW_MouseRClick();
 
 /// @brief メッセージボックスを表示します
 /// @param title 
@@ -193,5 +209,11 @@ extern Result SW_ShowMessageBoxYesNo(const autostring& title, const autostring& 
 extern HWND SW_Sys_GetHWnd();
 extern HINSTANCE SW_Sys_GetHInstance();
 extern Result SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& title, const autostring& message, long flag);
+extern bool SW_Sys_MouseLDown();
+extern bool SW_Sys_MouseLUp();
+extern bool SW_Sys_MouseLPress();
+extern bool SW_Sys_MouseRDown();
+extern bool SW_Sys_MouseRUp();
+extern bool SW_Sys_MouseRPress();
 
 extern LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);

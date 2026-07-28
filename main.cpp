@@ -1,7 +1,6 @@
 ﻿#include<iostream>
 #include"SimpleWindow.h"
-// Logs
-// Called SW_Init
+
 int main()
 {
 	SW_Init();					// (必須!)座標や色などのデータを初期化
@@ -14,6 +13,10 @@ int main()
 
 	while (SW_Update())			// ウィンドウを更新
 	{
+		if (SW_MouseLClick())
+		{
+			SW_ShowMessageBoxOk(L"title", L"message");
+		}
 	}
 
 	SW_Close();					// ウィンドウを閉じる

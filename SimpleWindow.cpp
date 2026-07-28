@@ -12,6 +12,8 @@ void SW_Init()
 	data::window = nullptr;
 	data::instance = GetModuleHandle(nullptr);
 	data::backColor = (HBRUSH)DKGRAY_BRUSH;
+	data::mouseLClick = false;
+	data::mouseRClick = false;
 	//data::cursorPos;
 }
 
@@ -41,7 +43,7 @@ void SW_Icon(const autostring& iconPath)
 
 void SW_Cursor(const autostring& cursorPath)
 {
-	data::cursor = (HCURSOR)LoadImage(data::instance, cursorPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+	data::cursor = (HCURSOR)LoadImage(data::instance, cursorPath.c_str(), IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE);
 }
 
 void SW_DarkMode()
@@ -70,8 +72,11 @@ void SW_BackColor(BYTE r, BYTE g, BYTE b)
 	data::backColor = CreateSolidBrush(color);
 }
 
-NODISCARD bool SW_Update()
+bool SW_Update()
 {
+	data::mouseLClickPrev = data::mouseLClick;
+	data::mouseRClickPrev = data::mouseRClick;
+
 	MSG message{};
 	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
 	{
@@ -105,6 +110,16 @@ void SW_Close()
 	DeleteObject(data::backColor);
 	PostQuitMessage(0);
 	PostMessage(data::window, WM_CLOSE, 0, 0);
+}
+
+bool SW_MouseLClick()
+{
+	return SW_Sys_MouseLUp();
+}
+
+bool SW_MouseRClick()
+{
+	return SW_Sys_MouseRUp();
 }
 
 Result SW_ShowMessageBox(const autostring& title, const autostring& message, long flag)
@@ -191,6 +206,32 @@ Result SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& titl
 	return Result::Null;
 }
 
+bool SW_Sys_MouseLDown()
+{
+	return data::mouseLClick && !data::mouseLClickPrev;
+}
+bool SW_Sys_MouseLUp()
+{
+	return !data::mouseLClick && data::mouseLClickPrev;
+}
+bool SW_Sys_MouseLPress()
+{
+	return data::mouseLClick;
+}
+bool SW_Sys_MouseRDown()
+{
+	return data::mouseRClick && !data::mouseRClickPrev;
+}
+bool SW_Sys_MouseRUp()
+{
+	return !data::mouseRClick && data::mouseRClickPrev;
+}
+bool SW_Sys_MouseRPress()
+{
+	return data::mouseLClick;
+}
+
+
 long operator|(Button b, Icon i)
 {
 	return (long)b | (long)i;
@@ -202,13 +243,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	{
 	case WM_CREATE:
 	{
-		//RAWINPUTDEVICE rawInputDevice{};
-		//rawInputDevice.usUsagePage = 0x01;
-		//rawInputDevice.usUsage = 0x02;
-		//rawInputDevice.dwFlags = RIDEV_INPUTSINK;
-		//rawInputDevice.hwndTarget = data::window;
-		//RegisterRawInputDevices(&rawInputDevice, 1, sizeof(RAWINPUTDEVICE));
-		//GetCursorPos(&data::cursorPos);
+		RAWINPUTDEVICE rawInputDevice[1]{};
+		rawInputDevice[SW_RAWINPUT_INDEX_MOUSE].usUsagePage = 0x01;
+		rawInputDevice[SW_RAWINPUT_INDEX_MOUSE].usUsage = 0x02;
+		rawInputDevice[SW_RAWINPUT_INDEX_MOUSE].dwFlags = RIDEV_INPUTSINK;
+		rawInputDevice[SW_RAWINPUT_INDEX_MOUSE].hwndTarget = hWnd;
+		RegisterRawInputDevices(rawInputDevice, _countof(rawInputDevice), sizeof(RAWINPUTDEVICE));
 	}
 	return DefWindowProc(hWnd, msg, wp, lp);
 
@@ -222,13 +262,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case WM_INPUT:
 	{
-		//RAWINPUT rawInput{};
-		//UINT rawInputSize = (UINT)sizeof(rawInput);
-		//GetRawInputData((HRAWINPUT)lp, RID_INPUT, &rawInput, &rawInputSize, sizeof(RAWINPUTHEADER));
-		//if (rawInput.header.dwType == RIM_TYPEMOUSE)
-		//{
-		//	GetCursorPos(&data::cursorPos);
-		//}
+		RAWINPUT rawInput{};
+		UINT dwSize = sizeof(rawInput);
+		GetRawInputData((HRAWINPUT)lp, RID_INPUT, &rawInput, &dwSize, sizeof(RAWINPUTHEADER));
+
+		if (rawInput.header.dwType == RIM_TYPEMOUSE)
+		{
+			if ((rawInput.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN) != 0)
+			{
+				data::mouseLClick = true;
+			}
+			if ((rawInput.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP) != 0)
+			{
+				data::mouseLClick = false;
+			}
+			if ((rawInput.data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN) != 0)
+			{
+				data::mouseRClick = true;
+			}
+			if ((rawInput.data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP) != 0)
+			{
+				data::mouseRClick = false;
+			}
+		}
 	}
 	return DefWindowProc(hWnd, msg, wp, lp);
 
