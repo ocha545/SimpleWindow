@@ -8,14 +8,13 @@ int main()
 	SW_Title(L"たいとる");		// ウィンドウタイトルの設定
 	SW_BackColor(0, 255, 0);	// 背景色の設定(R, G, B)
 	SW_CreateWindow();			// (必須!)ウィンドウの作成
-	SW_DarkMode();				// ダークモードの有効化
-	SW_Show();					// ウィンドウの表示
-
+	SW_EnableDarkMode();		// ダークモードの有効化
+	SW_Show();					// (必須!)ウィンドウの表示
+		
 	while (SW_Update())			// ウィンドウを更新
 	{
-		if (SW_MouseLClick())
+		if (SW_MouseRClick())
 		{
-			SW_ShowMessageBoxOk(L"title", L"message");
 		}
 	}
 

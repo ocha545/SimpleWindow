@@ -1,4 +1,8 @@
-﻿#pragma once
+﻿/// @file SampleWindow.h
+/// @brief 楽に使えるウィンドウ周りのライブラリです
+
+
+#pragma once
 #include<string>
 #include<Windows.h>
 #include<exception>
@@ -15,10 +19,6 @@ using autostring = std::string;
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE (20)
-#endif
-
-#ifndef NODISCARD
-#define NODISCARD [[nodiscard]]
 #endif
 
 #ifndef SW_RAWINPUT_INDEX_MOUSE
@@ -111,14 +111,13 @@ namespace data
 	static HICON icon;
 	static HCURSOR cursor;
 	static HBRUSH backColor;
+	static bool foregroundWindow;
 	static bool mouseLClickPrev;
 	static bool mouseRClickPrev;
+	static bool mouseMClickPrev;
 	static bool mouseLClick;
 	static bool mouseRClick;
-
-	//未使用！
-	//static POINT cursorPos;
-	//Vector2D ConvPointToVector2D(const POINT& pos);
+	static bool mouseMClick;
 }
 
 /// @brief ウィンドウの作成に必要な変数を初期化します
@@ -148,7 +147,13 @@ extern void SW_Cursor(const autostring& cursorPath);
 
 /// @brief ウィンドウをダークモードに設定します
 /// @brief SW_CreateWindow関数を実行した後にこの関数を実行してください
-extern void SW_DarkMode();
+extern void SW_EnableDarkMode();
+
+/// @brief ウィンドウを最前面に固定します
+extern void SW_EnableForegroundWindow();
+
+/// @brief ウィンドウの固定を解除します
+extern void SW_DisableForegroundWindow();
 
 /// @brief ウィンドウの背景の色を設定します
 /// @brief 0 から 255までの値を使用してください
@@ -158,7 +163,7 @@ extern void SW_DarkMode();
 extern void SW_BackColor(BYTE r, BYTE g, BYTE b);
 
 /// @brief ユーザー設定でダークモードが有効かチェックします(未実装)
-/// @return 
+/// @return true(未実装の為)
 extern bool SW_IsDarkMode();
 
 /// @brief ウィンドウを作成します
@@ -186,6 +191,10 @@ extern bool SW_MouseLClick();
 /// @brief マウスの右クリックを判定します
 /// @return 
 extern bool SW_MouseRClick();
+
+/// @brief マウスのホイールクリックを判定します
+/// @return 
+extern bool SW_MouseWheelClick();
 
 /// @brief メッセージボックスを表示します
 /// @param title 
@@ -215,5 +224,8 @@ extern bool SW_Sys_MouseLPress();
 extern bool SW_Sys_MouseRDown();
 extern bool SW_Sys_MouseRUp();
 extern bool SW_Sys_MouseRPress();
+extern bool SW_Sys_MouseMDown();
+extern bool SW_Sys_MouseMUp();
+extern bool SW_Sys_MouseMPress();
 
 extern LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);

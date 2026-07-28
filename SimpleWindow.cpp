@@ -14,6 +14,7 @@ void SW_Init()
 	data::backColor = (HBRUSH)DKGRAY_BRUSH;
 	data::mouseLClick = false;
 	data::mouseRClick = false;
+	data::mouseMClick = false;
 	//data::cursorPos;
 }
 
@@ -46,7 +47,7 @@ void SW_Cursor(const autostring& cursorPath)
 	data::cursor = (HCURSOR)LoadImage(data::instance, cursorPath.c_str(), IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE);
 }
 
-void SW_DarkMode()
+void SW_EnableDarkMode()
 {
 	if (!data::window)
 	{
@@ -58,6 +59,19 @@ void SW_DarkMode()
 	if (FAILED(res))
 	{
 		throw SWFailureResultException("ダークモードの有効化に失敗しました");
+	}
+}
+
+void SW_EnableForegroundWindow()
+{
+	data::foregroundWindow = SetWindowPos(data::window, HWND_TOPMOST, data::x, data::y, data::width, data::height, SWP_NOSIZE | SWP_NOMOVE);
+}
+
+void SW_DisableForegroundWindow()
+{
+	if (data::foregroundWindow)
+	{
+		data::foregroundWindow = !SetWindowPos(data::window, HWND_NOTOPMOST, data::x, data::y, data::width, data::height, SWP_NOSIZE | SWP_NOMOVE);
 	}
 }
 
@@ -76,6 +90,7 @@ bool SW_Update()
 {
 	data::mouseLClickPrev = data::mouseLClick;
 	data::mouseRClickPrev = data::mouseRClick;
+	data::mouseMClickPrev = data::mouseMClick;
 
 	MSG message{};
 	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
@@ -122,6 +137,11 @@ bool SW_MouseRClick()
 	return SW_Sys_MouseRUp();
 }
 
+bool SW_MouseWheelClick()
+{
+	return SW_Sys_MouseMUp();
+}
+
 Result SW_ShowMessageBox(const autostring& title, const autostring& message, long flag)
 {
 	return SW_Sys_MessageBox(data::window, data::instance, title, message, flag);
@@ -139,6 +159,9 @@ Result SW_ShowMessageBoxYesNo(const autostring& title, const autostring& message
 
 void SW_CreateWindow()
 {
+	//DPI対応
+	::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
 	WNDCLASSEX windowClass{};
 	windowClass.cbSize = sizeof(windowClass);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -231,6 +254,20 @@ bool SW_Sys_MouseRPress()
 	return data::mouseLClick;
 }
 
+bool SW_Sys_MouseMDown()
+{
+	return data::mouseMClick && !data::mouseMClickPrev;
+}
+bool SW_Sys_MouseMUp()
+{
+	return !data::mouseMClick && data::mouseMClickPrev;
+}
+bool SW_Sys_MouseMPress()
+{
+	return data::mouseMClick;
+}
+
+
 
 long operator|(Button b, Icon i)
 {
@@ -284,6 +321,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			{
 				data::mouseRClick = false;
 			}
+			if ((rawInput.data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN) != 0)
+			{
+				data::mouseMClick = true;
+			}
+			if ((rawInput.data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_UP) != 0)
+			{
+				data::mouseMClick = false;
+			}
 		}
 	}
 	return DefWindowProc(hWnd, msg, wp, lp);
@@ -293,12 +338,3 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		return DefWindowProc(hWnd, msg, wp, lp);
 	}
 }
-
-
-//Vector2D data::ConvPointToVector2D(const POINT& pos)
-//{
-//	return Vector2D{
-//		(double)pos.x,
-//		(double)pos.y
-//	};
-//}
