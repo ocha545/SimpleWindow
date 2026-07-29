@@ -7,6 +7,7 @@
 #include<Windows.h>
 #include<exception>
 #include<dwmapi.h>
+#include<unordered_set>	
 #pragma comment(lib, "dwmapi.lib")
 
 //#include"SimpleVector2D/SimpleVector.h"
@@ -23,6 +24,10 @@ using autostring = std::string;
 
 #ifndef SW_RAWINPUT_INDEX_MOUSE
 #define SW_RAWINPUT_INDEX_MOUSE (0)
+#endif
+
+#ifndef SW_RAWINPUT_INDEX_KEYBOARD
+#define SW_RAWINPUT_INDEX_KEYBOARD (1)
 #endif
 
 /// @brief SimpleWindowからスローされる例外の親クラスです
@@ -63,7 +68,7 @@ public:
 	}
 };
 
-enum class Result : long
+enum class SWResult : long
 {
 	Ok = IDOK,
 	Cancel = IDCANCEL,
@@ -76,7 +81,7 @@ enum class Result : long
 	Continue = IDCONTINUE,
 	Null = NULL,
 };
-enum class Button : long
+enum class SWButton : long
 {
 	Ok = MB_OK,
 	OkCancel = MB_OKCANCEL,
@@ -86,7 +91,7 @@ enum class Button : long
 	RetryCancel = MB_RETRYCANCEL,
 	CancelTryContinue = MB_CANCELTRYCONTINUE,
 };
-enum class Icon : long
+enum class SWIcon : long
 {
 	Hand = MB_ICONERROR,
 	Stop = MB_ICONERROR,
@@ -97,7 +102,156 @@ enum class Icon : long
 	Asterisk = MB_ICONINFORMATION,
 	Information = MB_ICONINFORMATION,
 };
-long operator|(Button b, Icon i);
+long operator|(SWButton b, SWIcon i);
+
+enum class SWKey : UINT
+{
+	Backspace = VK_BACK,
+	Tab = VK_TAB,
+	Clear = VK_CLEAR,
+	Enter = VK_RETURN,
+	Shift = VK_SHIFT,
+	Ctrl = VK_CONTROL,
+	Alt,
+	Pause,
+	CapsLock,
+	KANA,
+	IME_HANGUL = KANA,
+	IME_ON,
+	IME_JUNJA,
+	IME_Final,
+	IME_HANJA,
+	IME_KANJI = IME_HANJA,
+	IME_OFF = VK_IME_OFF,
+	Escape,
+	IME_CONVERT,
+	IME_NONCONVERT,
+	IME_ACCEPT,
+	IME_MODE_CHANGE,
+	Space,
+	PageUp,
+	PageDown,
+	End,
+	Home,
+	Left,
+	Up,
+	Right,
+	Down,
+	Select,
+	Print,
+	Execute,
+	Snapshot,
+	Insert,
+	Delete,
+	Help,
+	NUM_0 = 0x30,
+	NUM_1,
+	NUM_2,
+	NUM_3,
+	NUM_4,
+	NUM_5,
+	NUM_6,
+	NUM_7,
+	NUM_8,
+	NUM_9,
+	A = 0x41,
+	B,
+	C,
+	D,
+	E,
+	F,
+	G,
+	H,
+	I,
+	J,
+	K,
+	L,
+	M,
+	N,
+	O,
+	P,
+	Q,
+	R,
+	S,
+	T,
+	U,
+	V,
+	W,
+	X,
+	Y,
+	Z,
+	Win,
+	RWin,
+	Apps,
+	Sleep = VK_SLEEP,
+	NUMPAD_0,
+	NUMPAD_1,
+	NUMPAD_2,
+	NUMPAD_3,
+	NUMPAD_4,
+	NUMPAD_5,
+	NUMPAD_6,
+	NUMPAD_7,
+	NUMPAD_8,
+	NUMPAD_9,
+	Multiply,
+	Add,
+	Separator,
+	Subtract,
+	Decimal,
+	Divide,
+	F1,
+	F2,
+	F3,
+	F4,
+	F5,
+	F6,
+	F7,
+	F8,
+	F9,
+	F10,
+	F11,
+	F12,
+	F13,
+	F14,
+	F15,
+	F16,
+	F17,
+	F18,
+	F19,
+	F20,
+	F21,
+	F22,
+	F23,
+	F24,
+	NumLock = VK_NUMLOCK,
+	Scroll,
+	LShift = VK_LSHIFT,
+	RShift,
+	LCtrl,
+	RCtrl,
+	LAlt,
+	RAlt,
+	BROWSER_BACK,
+	BROWSER_FORWARD,
+	BROWSER_REFRESH,
+	BROWSER_STOP,
+	BROWSER_SEARCH,
+	BROWSER_FAVORITES,
+	BROWSER_HOME,
+	VOLUMME_Mute,
+	VOLUMME_Down,
+	VOLUMME_Up,
+	MEDIA_NextTrack,
+	MEDIA_PrevTrack,
+	MEDIA_STOP,
+	MEDIA_PLAY_PAUSE,
+	LAUNCH_MAIL,
+	LAUNCH_MEDIA_SELECT,
+	LAUNCH_APP1,
+	LAUNCH_APP2,
+	//ここから先は不要っぽいので書きません
+};
 
 namespace data
 {
@@ -118,6 +272,8 @@ namespace data
 	static bool mouseLClick;
 	static bool mouseRClick;
 	static bool mouseMClick;
+	static std::unordered_set<short> keyboardDowns;
+	static std::unordered_set<short> keyboardDownsPrev;
 }
 
 /// @brief ウィンドウの作成に必要な変数を初期化します
@@ -201,28 +357,34 @@ extern bool SW_MouseRClick();
 /// @return 
 extern bool SW_MouseWheelClick();
 
+extern bool SW_KeyDown(SWKey key);
+
+extern bool SW_KeyUp(SWKey key);
+
+extern bool SW_KeyPress(SWKey key);
+
 /// @brief メッセージボックスを表示します
 /// @param title 
 /// @param message 
 /// @param flag Button列挙体とIcon列挙体を使ってカスタムします
 /// @return 
-extern Result SW_ShowMessageBox(const autostring& title, const autostring& message, long flag);
+extern SWResult SW_ShowMessageBox(const autostring& title, const autostring& message, long flag);
 
 /// @brief メッセージボックスをOKボタンで表示します
 /// @param title 
 /// @param message 
 /// @return Result::Ok が返されます
-extern Result SW_ShowMessageBoxOk(const autostring& title, const autostring& message);
+extern SWResult SW_ShowMessageBoxOk(const autostring& title, const autostring& message);
 
 /// @brief メッセージボックスをYesNoボタンで表示します
 /// @param title 
 /// @param message 
 /// @return Result::Yes か Result::No が返されます
-extern Result SW_ShowMessageBoxYesNo(const autostring& title, const autostring& message);
+extern SWResult SW_ShowMessageBoxYesNo(const autostring& title, const autostring& message);
 
 extern HWND SW_Sys_GetHWnd();
 extern HINSTANCE SW_Sys_GetHInstance();
-extern Result SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& title, const autostring& message, long flag);
+extern SWResult SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& title, const autostring& message, long flag);
 extern bool SW_Sys_MouseLDown();
 extern bool SW_Sys_MouseLUp();
 extern bool SW_Sys_MouseLPress();

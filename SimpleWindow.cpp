@@ -91,6 +91,7 @@ bool SW_Update()
 	data::mouseLClickPrev = data::mouseLClick;
 	data::mouseRClickPrev = data::mouseRClick;
 	data::mouseMClickPrev = data::mouseMClick;
+	data::keyboardDownsPrev = data::keyboardDowns;
 
 	MSG message{};
 	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
@@ -150,19 +151,38 @@ bool SW_MouseWheelClick()
 	return SW_Sys_MouseMUp();
 }
 
-Result SW_ShowMessageBox(const autostring& title, const autostring& message, long flag)
+bool SW_KeyDown(SWKey key)
+{
+	return
+		data::keyboardDownsPrev.count((UINT)key) == 0 &&
+		data::keyboardDowns.count((UINT)key) != 0;
+}
+
+bool SW_KeyUp(SWKey key)
+{
+	return
+		data::keyboardDownsPrev.count((UINT)key) != 0 &&
+		data::keyboardDowns.count((UINT)key) == 0;
+}
+
+bool SW_KeyPress(SWKey key)
+{
+	return data::keyboardDowns.count((UINT)key) != 0;
+}
+
+SWResult SW_ShowMessageBox(const autostring& title, const autostring& message, long flag)
 {
 	return SW_Sys_MessageBox(data::window, data::instance, title, message, flag);
 }
 
-Result SW_ShowMessageBoxOk(const autostring& title, const autostring& message)
+SWResult SW_ShowMessageBoxOk(const autostring& title, const autostring& message)
 {
-	return SW_Sys_MessageBox(data::window, data::instance, title, message, Button::Ok | Icon::Information);
+	return SW_Sys_MessageBox(data::window, data::instance, title, message, SWButton::Ok | SWIcon::Information);
 }
 
-Result SW_ShowMessageBoxYesNo(const autostring& title, const autostring& message)
+SWResult SW_ShowMessageBoxYesNo(const autostring& title, const autostring& message)
 {
-	return SW_Sys_MessageBox(data::window, data::instance, title, message, Button::YesNo | Icon::Information);
+	return SW_Sys_MessageBox(data::window, data::instance, title, message, SWButton::YesNo | SWIcon::Information);
 }
 
 void SW_CreateWindow()
@@ -211,7 +231,7 @@ HINSTANCE SW_Sys_GetHInstance()
 	return data::instance;
 }
 
-Result SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& title, const autostring& message, long flag)
+SWResult SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& title, const autostring& message, long flag)
 {
 	MSGBOXPARAMS params{};
 	params.cbSize = sizeof(params);
@@ -223,18 +243,18 @@ Result SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& titl
 
 	switch (MessageBoxIndirect(&params))
 	{
-	case IDOK:			return Result::Ok;
-	case IDCANCEL:		return Result::Cancel;
-	case IDABORT:		return Result::Abort;
-	case IDRETRY:		return Result::Retry;
-	case IDIGNORE:		return Result::Ignore;
-	case IDYES:			return Result::Yes;
-	case IDNO:			return Result::No;
-	case IDTRYAGAIN:	return Result::TryAgain;
-	case IDCONTINUE:	return Result::Continue;
-	default:			return Result::Null;
+	case IDOK:			return SWResult::Ok;
+	case IDCANCEL:		return SWResult::Cancel;
+	case IDABORT:		return SWResult::Abort;
+	case IDRETRY:		return SWResult::Retry;
+	case IDIGNORE:		return SWResult::Ignore;
+	case IDYES:			return SWResult::Yes;
+	case IDNO:			return SWResult::No;
+	case IDTRYAGAIN:	return SWResult::TryAgain;
+	case IDCONTINUE:	return SWResult::Continue;
+	default:			return SWResult::Null;
 	}
-	return Result::Null;
+	return SWResult::Null;
 }
 
 bool SW_Sys_MouseLDown()
@@ -277,7 +297,7 @@ bool SW_Sys_MouseMPress()
 
 
 
-long operator|(Button b, Icon i)
+long operator|(SWButton b, SWIcon i)
 {
 	return (long)b | (long)i;
 }
@@ -288,11 +308,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	{
 	case WM_CREATE:
 	{
-		RAWINPUTDEVICE rawInputDevice[1]{};
+		RAWINPUTDEVICE rawInputDevice[2]{};
 		rawInputDevice[SW_RAWINPUT_INDEX_MOUSE].usUsagePage = 0x01;
 		rawInputDevice[SW_RAWINPUT_INDEX_MOUSE].usUsage = 0x02;
 		rawInputDevice[SW_RAWINPUT_INDEX_MOUSE].dwFlags = RIDEV_INPUTSINK;
 		rawInputDevice[SW_RAWINPUT_INDEX_MOUSE].hwndTarget = hWnd;
+		rawInputDevice[SW_RAWINPUT_INDEX_KEYBOARD].usUsagePage = 0x01;
+		rawInputDevice[SW_RAWINPUT_INDEX_KEYBOARD].usUsage = 0x06;
+		rawInputDevice[SW_RAWINPUT_INDEX_KEYBOARD].dwFlags = RIDEV_INPUTSINK;
+		rawInputDevice[SW_RAWINPUT_INDEX_KEYBOARD].hwndTarget = hWnd;
 		RegisterRawInputDevices(rawInputDevice, _countof(rawInputDevice), sizeof(RAWINPUTDEVICE));
 	}
 	return DefWindowProc(hWnd, msg, wp, lp);
@@ -311,6 +335,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		UINT dwSize = sizeof(rawInput);
 		GetRawInputData((HRAWINPUT)lp, RID_INPUT, &rawInput, &dwSize, sizeof(RAWINPUTHEADER));
 
+		if (rawInput.header.dwType == RIM_TYPEKEYBOARD)
+		{
+			if (rawInput.data.keyboard.VKey == 0xff)
+			{
+				return DefWindowProc(hWnd, msg, wp, lp);
+			}
+			else if ((rawInput.data.keyboard.Flags & RI_KEY_BREAK) == 0)
+			{
+				data::keyboardDowns.insert(rawInput.data.keyboard.VKey);
+			}
+			else
+			{
+				data::keyboardDowns.erase(rawInput.data.keyboard.VKey);
+			}
+		}
 		if (rawInput.header.dwType == RIM_TYPEMOUSE)
 		{
 			if ((rawInput.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN) != 0)

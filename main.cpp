@@ -10,13 +10,29 @@ int main()
 	SW_CreateWindow();			// (必須!)ウィンドウの作成
 	SW_EnableDarkMode();		// ダークモードの有効化
 	SW_Show();					// (必須!)ウィンドウの表示
+	float windowPosX = 0.0f;
+	float windowPosY = 0.0f;
+	float speed = 0.1f;
 
 	while (SW_Update())			// ウィンドウを更新
 	{
-		if (SW_MouseRClick())
+		if (SW_KeyPress(SWKey::Left))
 		{
-
+			windowPosX -= speed;
 		}
+		if (SW_KeyPress(SWKey::Right))
+		{
+			windowPosX += speed;
+		}
+		if (SW_KeyPress(SWKey::Up))
+		{
+			windowPosY -= speed;
+		}
+		if (SW_KeyPress(SWKey::Down))
+		{
+			windowPosY += speed;
+		}
+		SW_UpdateWindowPos((int)windowPosX, (int)windowPosY);
 	}
 
 	SW_Close();					// ウィンドウを閉じる
