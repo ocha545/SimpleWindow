@@ -368,6 +368,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 			if (rawInput.data.keyboard.VKey == 0xff)
 			{
+				data::keyboardDowns.insert(SWKey::Empty);
 				return DefWindowProc(hWnd, msg, wp, lp);
 			}
 			else if ((rawInput.data.keyboard.Flags & RI_KEY_BREAK) == 0)
@@ -405,6 +406,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			{
 				data::mouseMClick = false;
 			}
+		}
+		else
+		{
+			data::keyboardDowns.insert(SWKey::Empty);
 		}
 	}
 	return DefWindowProc(hWnd, msg, wp, lp);

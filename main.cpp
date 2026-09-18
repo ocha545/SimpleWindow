@@ -15,7 +15,7 @@ int main()
 
 	while (SW_Update())			// ウィンドウを更新
 	{
-//		Sleep(16);
+		Sleep(16);
 		if (SW_KeyPress(SWKey::Left))
 		{
 			windowPosX -= speed;
@@ -33,12 +33,12 @@ int main()
 			windowPosY += speed;
 		}
 
-		//auto keys = EX_SW_GetPressKeys();
-		//for (int i = 0; i < keys.size(); i++)
-		//{
-		//	std::cout << (UINT)keys[i] << ",";
-		//}
-		//std::cout << "\n";
+		auto keys = SW_GetPressKeys();
+		for (int i = 0; i < keys.size(); i++)
+		{
+			std::cout << (UINT)keys[i] << ",";
+		}
+		std::cout << "\n";
 
 		SW_UpdateWindowPos((int)windowPosX, (int)windowPosY);
 	}

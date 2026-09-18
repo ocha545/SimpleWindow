@@ -108,6 +108,7 @@ long operator|(SWButton b, SWIcon i);
 
 enum class SWKey : UINT
 {
+	Empty = 0xff,
 	Backspace = VK_BACK,
 	Tab = VK_TAB,
 	Clear = VK_CLEAR,
