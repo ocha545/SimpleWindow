@@ -1,5 +1,5 @@
 ﻿#include"SimpleWindow.h"
-
+#include<iostream>
 int main()
 {
 	SW_Init();					// (必須!)座標や色などのデータを初期化
@@ -15,6 +15,7 @@ int main()
 
 	while (SW_Update())			// ウィンドウを更新
 	{
+//		Sleep(16);
 		if (SW_KeyPress(SWKey::Left))
 		{
 			windowPosX -= speed;
@@ -31,6 +32,14 @@ int main()
 		{
 			windowPosY += speed;
 		}
+
+		//auto keys = EX_SW_GetPressKeys();
+		//for (int i = 0; i < keys.size(); i++)
+		//{
+		//	std::cout << (UINT)keys[i] << ",";
+		//}
+		//std::cout << "\n";
+
 		SW_UpdateWindowPos((int)windowPosX, (int)windowPosY);
 	}
 

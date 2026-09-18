@@ -1,7 +1,7 @@
 ﻿#include"SimpleWindow.h"
 void SW_Init()
 {
-	data::title = autostring();
+	data::title = SW_STRING();
 	data::width = 300;
 	data::height = 300;
 	data::x = 0;
@@ -18,7 +18,7 @@ void SW_Init()
 	//data::cursorPos;
 }
 
-void SW_Title(const autostring& title)
+void SW_Title(const SW_STRING& title)
 {
 	data::title = title;
 }
@@ -37,12 +37,12 @@ void SW_Pos(int x, int y)
 	data::y = y;
 }
 
-void SW_Icon(const autostring& iconPath)
+void SW_Icon(const SW_STRING& iconPath)
 {
 	data::icon = (HICON)LoadImage(data::instance, iconPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
 }
 
-void SW_Cursor(const autostring& cursorPath)
+void SW_Cursor(const SW_STRING& cursorPath)
 {
 	data::cursor = (HCURSOR)LoadImage(data::instance, cursorPath.c_str(), IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE);
 }
@@ -108,7 +108,7 @@ bool SW_Update()
 	return true;
 }
 
-void SW_UpdateTitle(const autostring& title)
+void SW_UpdateTitle(const SW_STRING& title)
 {
 	if (::SetWindowText(data::window, title.c_str()) == FALSE)
 	{
@@ -155,22 +155,21 @@ bool SW_MouseWheelClick()
 bool SW_KeyDown(SWKey key)
 {
 	return
-		data::keyboardDownsPrev.count((UINT)key) == 0 &&
-		data::keyboardDowns.count((UINT)key) != 0;
+		data::keyboardDownsPrev.count(key) == 0 &&
+		data::keyboardDowns.count(key) != 0;
 }
 
 bool SW_KeyUp(SWKey key)
 {
 	return
-		data::keyboardDownsPrev.count((UINT)key) != 0 &&
-		data::keyboardDowns.count((UINT)key) == 0;
+		data::keyboardDownsPrev.count(key) != 0 &&
+		data::keyboardDowns.count(key) == 0;
 }
 
 bool SW_KeyPress(SWKey key)
 {
-	return data::keyboardDowns.count((UINT)key) != 0;
+	return data::keyboardDowns.count(key) != 0;
 }
-
 
 void SW_SendKey(SWKey sendKey)
 {
@@ -181,17 +180,22 @@ void SW_SendKey(SWKey sendKey)
 	::SendInput(1, &input, sizeof(input));
 }
 
-SWResult SW_ShowMessageBox(const autostring& title, const autostring& message, long flag)
+std::vector<SWKey> SW_GetPressKeys()
+{
+	return std::vector<SWKey>(data::keyboardDowns.begin(), data::keyboardDowns.end());
+}
+
+SWResult SW_ShowMessageBox(const SW_STRING& title, const SW_STRING& message, long flag)
 {
 	return SW_Sys_MessageBox(data::window, data::instance, title, message, flag);
 }
 
-SWResult SW_ShowMessageBoxOk(const autostring& title, const autostring& message)
+SWResult SW_ShowMessageBoxOk(const SW_STRING& title, const SW_STRING& message)
 {
 	return SW_Sys_MessageBox(data::window, data::instance, title, message, SWButton::Ok | SWIcon::Information);
 }
 
-SWResult SW_ShowMessageBoxYesNo(const autostring& title, const autostring& message)
+SWResult SW_ShowMessageBoxYesNo(const SW_STRING& title, const SW_STRING& message)
 {
 	return SW_Sys_MessageBox(data::window, data::instance, title, message, SWButton::YesNo | SWIcon::Information);
 }
@@ -242,7 +246,7 @@ HINSTANCE SW_Sys_GetHInstance()
 	return data::instance;
 }
 
-SWResult SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& title, const autostring& message, long flag)
+SWResult SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const SW_STRING& title, const SW_STRING& message, long flag)
 {
 	MSGBOXPARAMS params{};
 	params.cbSize = sizeof(params);
@@ -319,6 +323,8 @@ SWKey operator|(SWKey a, SWKey b)
 }
 
 
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg)
@@ -366,11 +372,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			}
 			else if ((rawInput.data.keyboard.Flags & RI_KEY_BREAK) == 0)
 			{
-				data::keyboardDowns.insert(rawInput.data.keyboard.VKey);
+				data::keyboardDowns.insert((SWKey)rawInput.data.keyboard.VKey);
 			}
 			else
 			{
-				data::keyboardDowns.erase(rawInput.data.keyboard.VKey);
+				data::keyboardDowns.erase((SWKey)rawInput.data.keyboard.VKey);
 			}
 		}
 		if (rawInput.header.dwType == RIM_TYPEMOUSE)

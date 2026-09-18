@@ -13,9 +13,11 @@
 //#include"SimpleVector2D/SimpleVector.h"
 
 #ifdef UNICODE
-using autostring = std::wstring;
+//using autostring = std::wstring;
+#define SW_STRING std::wstring
 #else
-using autostring = std::string;
+//using autostring = std::string;
+#define SW_STRING std::string;
 #endif
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
@@ -256,7 +258,8 @@ SWKey operator|(SWKey a, SWKey b);
 
 namespace data
 {
-	static autostring title;
+//	static autostring title;
+	static SW_STRING title;
 	static int width;
 	static int height;
 	static int x;
@@ -274,8 +277,8 @@ namespace data
 	static bool mouseRClick;
 	static bool mouseMClick;
 	//static bool isFocus;
-	static std::unordered_set<short> keyboardDowns;
-	static std::unordered_set<short> keyboardDownsPrev;
+	static std::unordered_set<SWKey> keyboardDowns;
+	static std::unordered_set<SWKey> keyboardDownsPrev;
 }
 
 /// @brief ウィンドウの作成に必要な変数を初期化します
@@ -283,7 +286,8 @@ extern void SW_Init();
 
 /// @brief ウィンドウのタイトルを設定します
 /// @param title 
-extern void SW_Title(const autostring& title);
+//extern void SW_Title(const autostring& title);
+extern void SW_Title(const SW_STRING& title);
 
 /// @brief ウィンドウの大きさを設定します
 /// @param width 
@@ -297,11 +301,11 @@ extern void SW_Pos(int x, int y);
 
 /// @brief ウィンドウのアイコンを設定します
 /// @param iconPath 
-extern void SW_Icon(const autostring& iconPath);
+extern void SW_Icon(const SW_STRING& iconPath);
 
 /// @brief ウィンドウ内で使うカーソル画像を設定します
 /// @param cursorPath 
-extern void SW_Cursor(const autostring& cursorPath);
+extern void SW_Cursor(const SW_STRING& cursorPath);
 
 /// @brief ウィンドウをダークモードに設定します
 /// @brief SW_CreateWindow関数を実行した後にこの関数を実行してください
@@ -334,7 +338,7 @@ extern bool SW_Update();
 /// @brief ウィンドウタイトルを更新します
 /// @brief 処理が重たいのでループ内で使用するのはご遠慮下さい
 /// @param title 
-extern void SW_UpdateTitle(const autostring& title);
+extern void SW_UpdateTitle(const SW_STRING& title);
 
 /// @brief ウィンドウの座標を変更します
 /// @param x 
@@ -378,28 +382,32 @@ extern bool SW_KeyPress(SWKey key);
 /// @param key 
 extern void SW_SendKey(SWKey sendKey);
 
+/// @brief 押されているキーを配列にして返します
+/// @return 
+extern std::vector<SWKey> SW_GetPressKeys();
+
 /// @brief メッセージボックスを表示します
 /// @param title 
 /// @param message 
 /// @param flag Button列挙体とIcon列挙体を使ってカスタムします
 /// @return 
-extern SWResult SW_ShowMessageBox(const autostring& title, const autostring& message, long flag);
+extern SWResult SW_ShowMessageBox(const SW_STRING& title, const SW_STRING& message, long flag);
 
 /// @brief メッセージボックスをOKボタンで表示します
 /// @param title 
 /// @param message 
 /// @return Result::Ok が返されます
-extern SWResult SW_ShowMessageBoxOk(const autostring& title, const autostring& message);
+extern SWResult SW_ShowMessageBoxOk(const SW_STRING& title, const SW_STRING& message);
 
 /// @brief メッセージボックスをYesNoボタンで表示します
 /// @param title 
 /// @param message 
 /// @return Result::Yes か Result::No が返されます
-extern SWResult SW_ShowMessageBoxYesNo(const autostring& title, const autostring& message);
+extern SWResult SW_ShowMessageBoxYesNo(const SW_STRING& title, const SW_STRING& message);
 
 extern HWND SW_Sys_GetHWnd();
 extern HINSTANCE SW_Sys_GetHInstance();
-extern SWResult SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const autostring& title, const autostring& message, long flag);
+extern SWResult SW_Sys_MessageBox(HWND handle, HINSTANCE instance, const SW_STRING& title, const SW_STRING& message, long flag);
 extern bool SW_Sys_MouseLDown();
 extern bool SW_Sys_MouseLUp();
 extern bool SW_Sys_MouseLPress();
@@ -409,5 +417,6 @@ extern bool SW_Sys_MouseRPress();
 extern bool SW_Sys_MouseMDown();
 extern bool SW_Sys_MouseMUp();
 extern bool SW_Sys_MouseMPress();
+
 
 extern LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
