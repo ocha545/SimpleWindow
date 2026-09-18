@@ -1,5 +1,4 @@
 ﻿#include"SimpleWindow.h"
-
 void SW_Init()
 {
 	data::title = autostring();
@@ -15,6 +14,7 @@ void SW_Init()
 	data::mouseLClick = false;
 	data::mouseRClick = false;
 	data::mouseMClick = false;
+	//data::isFocus = false;
 	//data::cursorPos;
 }
 
@@ -92,6 +92,7 @@ bool SW_Update()
 	data::mouseRClickPrev = data::mouseRClick;
 	data::mouseMClickPrev = data::mouseMClick;
 	data::keyboardDownsPrev = data::keyboardDowns;
+	//data::isFocus = (data::window == GetFocus());
 
 	MSG message{};
 	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
@@ -168,6 +169,16 @@ bool SW_KeyUp(SWKey key)
 bool SW_KeyPress(SWKey key)
 {
 	return data::keyboardDowns.count((UINT)key) != 0;
+}
+
+
+void SW_SendKey(SWKey sendKey)
+{
+	INPUT input{};
+	input.type = INPUT_KEYBOARD;
+	input.ki.wVk = (WORD)sendKey;
+
+	::SendInput(1, &input, sizeof(input));
 }
 
 SWResult SW_ShowMessageBox(const autostring& title, const autostring& message, long flag)
@@ -302,6 +313,12 @@ long operator|(SWButton b, SWIcon i)
 	return (long)b | (long)i;
 }
 
+SWKey operator|(SWKey a, SWKey b)
+{
+	return (SWKey)((UINT)a | (UINT)b);
+}
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg)
@@ -334,6 +351,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		RAWINPUT rawInput{};
 		UINT dwSize = sizeof(rawInput);
 		GetRawInputData((HRAWINPUT)lp, RID_INPUT, &rawInput, &dwSize, sizeof(RAWINPUTHEADER));
+
+		//if (!data::isFocus)
+		//{
+		//	std::cout << "asd";
+		//	return DefWindowProc(hWnd, msg, wp, lp);
+		//}
 
 		if (rawInput.header.dwType == RIM_TYPEKEYBOARD)
 		{

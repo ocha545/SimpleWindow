@@ -1,5 +1,4 @@
-﻿#include<iostream>
-#include"SimpleWindow.h"
+﻿#include"SimpleWindow.h"
 
 int main()
 {

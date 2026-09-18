@@ -1,6 +1,6 @@
 ﻿/// @file SampleWindow.h
 /// @brief 楽に使えるウィンドウ周りのライブラリです
-
+/// @brief C言語風に書きましたが、C言語では動作しません
 
 #pragma once
 #include<string>
@@ -252,6 +252,7 @@ enum class SWKey : UINT
 	LAUNCH_APP2,
 	//ここから先は不要っぽいので書きません
 };
+SWKey operator|(SWKey a, SWKey b);
 
 namespace data
 {
@@ -272,6 +273,7 @@ namespace data
 	static bool mouseLClick;
 	static bool mouseRClick;
 	static bool mouseMClick;
+	//static bool isFocus;
 	static std::unordered_set<short> keyboardDowns;
 	static std::unordered_set<short> keyboardDownsPrev;
 }
@@ -357,11 +359,24 @@ extern bool SW_MouseRClick();
 /// @return 
 extern bool SW_MouseWheelClick();
 
+/// @brief キーが押された瞬間だけ判定します
+/// @param key 
+/// @return 
 extern bool SW_KeyDown(SWKey key);
 
+/// @brief キーが離された瞬間だけ判定します
+/// @param key 
+/// @return 
 extern bool SW_KeyUp(SWKey key);
 
+/// @brief キーが押されているか判定します
+/// @param key 
+/// @return 
 extern bool SW_KeyPress(SWKey key);
+
+/// @brief キー入力を送信します
+/// @param key 
+extern void SW_SendKey(SWKey sendKey);
 
 /// @brief メッセージボックスを表示します
 /// @param title 
