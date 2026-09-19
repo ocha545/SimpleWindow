@@ -380,7 +380,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				data::keyboardDowns.erase((SWKey)rawInput.data.keyboard.VKey);
 			}
 		}
-		if (rawInput.header.dwType == RIM_TYPEMOUSE)
+		else if (rawInput.header.dwType == RIM_TYPEMOUSE)
 		{
 			if ((rawInput.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN) != 0)
 			{
